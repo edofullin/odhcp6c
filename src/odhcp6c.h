@@ -368,6 +368,7 @@ struct odhcp6c_entry {
 struct odhcp6c_request_prefix {
 	uint32_t iaid;
 	uint16_t length;
+	struct in6_addr addr;
 };
 
 enum odhcp6c_opt_flags {

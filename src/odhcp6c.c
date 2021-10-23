@@ -242,18 +242,26 @@ int main(_unused int argc, char* const argv[])
 
 			char *iaid_begin;
 			int iaid_len = 0;
-			int prefix_length = strtoul(optarg, &iaid_begin, 10);
 
-			if (*iaid_begin != '\0' && *iaid_begin != ',' && *iaid_begin != ':') {
+			char* addr = strsep(&optarg, "/");
+			char* len_iaid = strsep(&optarg, "/");
+
+			struct in6_addr req_addr;
+
+			inet_pton(AF_INET6, addr, &req_addr);
+
+			int prefix_length = strtoul(len_iaid, &iaid_begin, 10);
+
+			if (*iaid_begin != '\0' && *iaid_begin != ',' && *iaid_begin != ' ') {
 				syslog(LOG_ERR, "invalid argument: '%s'", optarg);
 				return 1;
 			}
 
-			struct odhcp6c_request_prefix prefix = { 0, prefix_length };
+			struct odhcp6c_request_prefix prefix = { 0, prefix_length, req_addr };
 
 			if (*iaid_begin == ',' && (iaid_len = strlen(iaid_begin)) > 1)
 				memcpy(&prefix.iaid, iaid_begin + 1, iaid_len > 4 ? 4 : iaid_len);
-			else if (*iaid_begin == ':')
+			else if (*iaid_begin == ' ')
 				prefix.iaid = htonl((uint32_t)strtoul(&iaid_begin[1], NULL, 16));
 			else
 				prefix.iaid = htonl(++ia_pd_iaid_index);
