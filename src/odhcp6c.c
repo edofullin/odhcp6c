@@ -243,8 +243,10 @@ int main(_unused int argc, char* const argv[])
 			char *iaid_begin;
 			int iaid_len = 0;
 
-			char* addr = strsep(&optarg, "/");
-			char* len_iaid = strsep(&optarg, "/");
+			char* optargdup = strdup(optarg);
+
+			char* addr = strsep(&optargdup, "/");
+			char* len_iaid = strsep(&optargdup, "/");
 
 			struct in6_addr req_addr;
 
@@ -255,6 +257,8 @@ int main(_unused int argc, char* const argv[])
 
 
 			int prefix_length = strtoul(len_iaid, &iaid_begin, 10);
+
+			free(optargdup);
 
 			if (*iaid_begin != '\0' && *iaid_begin != ',' && *iaid_begin != ':') {
 				syslog(LOG_ERR, "invalid argument: '%s'", optarg);
